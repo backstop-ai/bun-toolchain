@@ -28,10 +28,11 @@ engines:
   # lint dimension. A project-wide pass (oxlint scans the project tree); the
   # project root is shaped via project_target, never bolted on.
   oxlint:
-    command: oxlint --format=json
+    command: oxlint --format=checkstyle
     input_mode: none
     scope_kind: project-wide
     project_target: "."
+    convert: scripts/oxlint-to-sarif.sh
     category: mechanism
     gate_type: lint
   # Format-as-lint (DD-3): `prettier --check` is a LINT-CATEGORY SARIF findings
@@ -39,7 +40,7 @@ engines:
   # NO new "format" gate dimension. The convert turns the unformatted-file list
   # into one lint-category SARIF finding per file.
   prettier:
-    command: prettier --check
+    command: prettier --list-different
     input_mode: none
     scope_kind: project-wide
     project_target: "."
@@ -53,14 +54,19 @@ engines:
     command: tsc --noEmit
     input_mode: none
     scope_kind: project-wide
+    convert: scripts/tsc-to-sarif.sh
     category: mechanism
     gate_type: build
-  # Test: `bun test` as a findings engine. gate_type test routes its findings to
-  # the test dimension. bun discovers its own tests, so no project_target.
+  # Test: `bun test` as a findings engine. gate_type test routes its findings to the
+  # test dimension. bun writes failures to STDERR (not captured by the findings
+  # dispatch), so the JUnit reporter writes machine-readable results to a FILE;
+  # stdout_artifact declares that file and the convert normalizes it to SARIF.
   bun-test:
-    command: bun test
+    command: bun test --reporter=junit --reporter-outfile=bun-test-junit.xml
+    stdout_artifact: bun-test-junit.xml
     input_mode: none
     scope_kind: project-wide
+    convert: scripts/junit-to-sarif.sh
     category: mechanism
     gate_type: test
   # Coverage: the coverage PRODUCER. gate_type coverage routes the convert output
