@@ -1,5 +1,5 @@
 name: backstop/bun-toolchain
-version: 1.0.0
+version: 1.1.0
 language: typescript
 archetype: enforcement
 description: >
@@ -20,9 +20,41 @@ classification:
   source:
     - "**/*.ts"
     - "**/*.tsx"
+    - "**/*.mts"
+    - "**/*.cts"
+    - "**/*.js"
+    - "**/*.jsx"
+    - "**/*.mjs"
+    - "**/*.cjs"
   test:
     - "**/*.test.ts"
+    - "**/*.test.tsx"
+    - "**/*.test.mts"
+    - "**/*.test.cts"
+    - "**/*.test.js"
+    - "**/*.test.jsx"
+    - "**/*.test.mjs"
+    - "**/*.test.cjs"
     - "**/*.spec.ts"
+    - "**/*.spec.tsx"
+    - "**/*.spec.mts"
+    - "**/*.spec.cts"
+    - "**/*.spec.js"
+    - "**/*.spec.jsx"
+    - "**/*.spec.mjs"
+    - "**/*.spec.cjs"
+    - "**/__tests__/**"
+    - "**/*.config.ts"
+    - "**/*.config.mts"
+    - "**/*.config.cts"
+    - "**/*.config.js"
+    - "**/*.config.mjs"
+    - "**/*.config.cjs"
+    - "**/testing/**"
+test_name_patterns:
+  - "(?:\\bit|\\btest|\\bdescribe)\\s*\\(\\s*\"([^\"]+)\""
+  - "(?:\\bit|\\btest|\\bdescribe)\\s*\\(\\s*'([^']+)'"
+  - "(?:\\bit|\\btest|\\bdescribe)\\s*\\(\\s*`([^`]+)`"
 engines:
   # Lint: oxlint as a findings engine. gate_type lint routes its findings to the
   # lint dimension. A project-wide pass (oxlint scans the project tree); the
@@ -35,6 +67,7 @@ engines:
     convert: scripts/oxlint-to-sarif.sh
     category: mechanism
     gate_type: lint
+    crash_guard: true
   # Format-as-lint (DD-3): `prettier --check` is a LINT-CATEGORY SARIF findings
   # engine — it rides the EXISTING lint dimension (gate_type lint) and introduces
   # NO new "format" gate dimension. The convert turns the unformatted-file list
@@ -47,6 +80,7 @@ engines:
     convert: scripts/format-to-sarif.sh
     category: mechanism
     gate_type: lint
+    crash_guard: true
   # Build: `tsc --noEmit` typecheck as a findings engine. gate_type build routes
   # its findings to the build dimension. tsc self-targets via tsconfig.json, so no
   # project_target is appended.
@@ -57,6 +91,8 @@ engines:
     convert: scripts/tsc-to-sarif.sh
     category: mechanism
     gate_type: build
+    crash_guard: true
+    exempt_from_scope_filter: true
   # Test: `bun test` as a findings engine. gate_type test routes its findings to the
   # test dimension. bun writes failures to STDERR (not captured by the findings
   # dispatch), so the JUnit reporter writes machine-readable results to a FILE;
@@ -69,6 +105,8 @@ engines:
     convert: scripts/junit-to-sarif.sh
     category: mechanism
     gate_type: test
+    crash_guard: true
+    exempt_from_scope_filter: true
   # Coverage: the coverage PRODUCER. gate_type coverage routes the convert output
   # to the coverage-records channel (check.ParsePackCoverage), DISTINCT from the
   # SARIF findings channel. `bun test --coverage --coverage-reporter=lcov` writes
@@ -86,7 +124,7 @@ engines:
     gate_type: coverage
 content:
   ruleset:
-    version: 1.0.0
+    version: 1.1.0
     rules:
       - id: bun-lint
         engine: oxlint

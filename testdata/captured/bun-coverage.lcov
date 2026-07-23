@@ -1,0 +1,17 @@
+SF:src/example.ts
+DA:1,1
+DA:2,1
+DA:3,1
+DA:4,0
+BRF:2
+BRH:1
+LF:4
+LH:3
+end_of_record
+SF:src/no-branches.ts
+DA:1,1
+BRF:0
+BRH:0
+LF:1
+LH:1
+end_of_record

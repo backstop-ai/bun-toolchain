@@ -14,8 +14,8 @@ CLI reboot is tracked separately as ISSUE-032).
 
 | Engine | Command | Gate dimension |
 | --- | --- | --- |
-| `oxlint` | `oxlint --format=json` | lint |
-| `prettier` | `prettier --check` | lint (format-as-lint; **no** new "format" dimension) |
+| `oxlint` | `oxlint --format=checkstyle` | lint |
+| `prettier` | `prettier --list-different` | lint (format-as-lint; **no** new "format" dimension) |
 | `typecheck` | `tsc --noEmit` | build |
 | `bun-test` | `bun test` | test |
 | `bun-coverage` | `bun test --coverage --coverage-reporter=lcov` | coverage |
@@ -27,8 +27,15 @@ list into lint-category SARIF findings.
 
 ## Classification
 
-Source: `**/*.ts`, `**/*.tsx` — Test: `**/*.test.ts`, `**/*.spec.ts`
-(the language-neutral coverage consumer reads these globs instead of a baked literal).
+Source classification covers TypeScript and JavaScript module extensions. Test
+classification covers `*.test.*`, `*.spec.*`, `__tests__`, config modules, and
+`testing` support directories. The language-neutral coverage consumer reads
+these declarations instead of baked filename conventions.
+
+This pack targets a Bun project whose lint, typecheck, test, and coverage
+commands run from the repository root. Arbitrary workspace orchestration belongs
+in a repository-specific pack until Backstop findings engines dispatch pack
+producers.
 
 ## Install
 
@@ -48,3 +55,11 @@ packs:
 `oxlint`, `bun`, `tsc`, `prettier` must be on PATH (Layer-0 runtime tools backstop
 does not auto-provision). They are presence-pinned on backstop's trusted-tool
 allowlist.
+
+## Verification
+
+```sh
+backstop pack check .
+backstop pack test .
+sh scripts/test-converters.sh
+```
