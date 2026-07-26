@@ -1,5 +1,5 @@
-name: backstop/bun-toolchain
-version: 1.1.0
+name: backstop-ai/bun-toolchain
+version: "1.2.0"
 language: typescript
 archetype: enforcement
 description: >
